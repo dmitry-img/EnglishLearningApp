@@ -1,16 +1,19 @@
-﻿using EnglishLearning.Models;
+﻿using EnglishLearning.Data;
+using EnglishLearning.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Text;
 
 namespace EnglishLearning.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly AppDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(AppDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -22,6 +25,36 @@ namespace EnglishLearning.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(UserLoginViewModel userLogin)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Username == userLogin.Username);
+            if(user != null)
+            { 
+                var byteArray = Encoding.ASCII.GetBytes(userLogin.Password);
+                string encodedPassword = Convert.ToBase64String(byteArray);
+                if(encodedPassword == user.Password)
+                {
+                    ViewData["user"] = user;
+                    return RedirectToAction("Index");
+                }
+            }
+            ModelState.AddModelError(String.Empty, "Wrong Usernaem or Password");
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

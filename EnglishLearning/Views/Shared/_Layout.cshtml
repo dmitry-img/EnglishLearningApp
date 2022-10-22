@@ -26,6 +26,14 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Login">Login</a>       
+                    }
+                    else
+                    {
+                       <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="UserDetails">@(ViewData["AuthUser"] as User).FirstName</a> 
+                    }
                 </div>
             </div>
         </nav>
